@@ -1,73 +1,70 @@
-CREATE TABLE catalogo_estado (
-    id_estado SERIAL PRIMARY KEY,
-    estado TEXT NOT NULL UNIQUE
-);
-
-CREATE TABLE catalogo_nivel_estudio (
-    id_nivel_estudio SERIAL PRIMARY KEY,
-    nivel_estudio TEXT NOT NULL UNIQUE
-);
-
-CREATE TABLE catalogo_area_sni (
+-- Tabla de Área SNI
+CREATE TABLE area_sni (
     id_area_sni SERIAL PRIMARY KEY,
-    area_sni TEXT NOT NULL UNIQUE
+    nombre_area_sni TEXT NOT NULL
 );
 
-CREATE TABLE beca (
-    id_beca SERIAL PRIMARY KEY,
-    fk_nivel_estudio INTEGER,
-    CONSTRAINT fk_beca_nivel_estudio FOREIGN KEY (fk_nivel_estudio) REFERENCES catalogo_nivel_estudio(id_nivel_estudio)
+-- Tabla de Estado
+CREATE TABLE estado (
+    id_estado SERIAL PRIMARY KEY,
+    nombre_estado TEXT NOT NULL
 );
 
-CREATE TABLE becario (
-    id_becario SERIAL PRIMARY KEY,
-    nombre_becario TEXT NOT NULL
+-- Tabla de Nivel de Estudio
+CREATE TABLE nivel_estudio (
+    id_nivel_estudio SERIAL PRIMARY KEY,
+    nombre_nivel TEXT NOT NULL
 );
 
-CREATE TABLE programa (
-    id_programa SERIAL PRIMARY KEY,
-    nombre_programa TEXT NOT NULL UNIQUE,
-    fk_area_sni INTEGER,
-    CONSTRAINT fk_programa_area_sni FOREIGN KEY (fk_area_sni) REFERENCES catalogo_area_sni(id_area_sni)
-);
-
+-- Tabla de Institución
 CREATE TABLE institucion (
     id_institucion SERIAL PRIMARY KEY,
-    nombre_institucion TEXT NOT NULL UNIQUE,
-    fk_estado INTEGER,
-    CONSTRAINT fk_institucion_estado FOREIGN KEY (fk_estado) REFERENCES catalogo_estado(id_estado)
+    nombre_institucion TEXT NOT NULL
 );
 
-CREATE TABLE convocatoria (
-    id_convocatoria SERIAL PRIMARY KEY,
-    nombre_convocatoria TEXT NOT NULL UNIQUE
+-- Tabla de Programa
+CREATE TABLE programa (
+    id_programa SERIAL PRIMARY KEY,
+    nombre_programa TEXT NOT NULL,
+    id_institucion INTEGER REFERENCES institucion(id_institucion)
 );
 
-CREATE TABLE pago (
-    id_pago SERIAL PRIMARY KEY,
-    fk_becario INTEGER,
-    fk_beca INTEGER,
-    inicio DATE,
-    fin DATE,
-    total NUMERIC,
-    CONSTRAINT fk_pago_becario FOREIGN KEY (fk_becario) REFERENCES becario(id_becario),
-    CONSTRAINT fk_pago_beca FOREIGN KEY (fk_beca) REFERENCES beca(id_beca)
+-- Tabla de Beca
+CREATE TABLE beca (
+    id_beca SERIAL PRIMARY KEY,
+    nombre_beca TEXT NOT NULL  -- Nuevo campo de nombre de beca
 );
 
-CREATE TABLE becario_institucion_programa (
-    fk_institucion INTEGER,
-    fk_becario INTEGER,
-    fk_programa INTEGER,
-    CONSTRAINT fk_becario_institucion FOREIGN KEY (fk_institucion) REFERENCES institucion(id_institucion),
-    CONSTRAINT fk_becario_programa FOREIGN KEY (fk_programa) REFERENCES programa(id_programa),
-    CONSTRAINT fk_becario_institucion_programa_becario FOREIGN KEY (fk_becario) REFERENCES becario(id_becario)
+-- Tabla de Becario
+CREATE TABLE becario (
+    id_becario SERIAL PRIMARY KEY,
+    nombre TEXT NOT NULL,
+    apellido TEXT NOT NULL,
+    id_estado INTEGER REFERENCES estado(id_estado),
+    id_nivel_estudio INTEGER REFERENCES nivel_estudio(id_nivel_estudio),
+    id_area_sni INTEGER REFERENCES area_sni(id_area_sni)
 );
 
+-- Tabla de Becario_Beca (relación entre becario y beca)
 CREATE TABLE becario_beca (
-    monto NUMERIC,
-    periodo TEXT,
-    fk_becario INTEGER,
-    fk_beca INTEGER,
-    CONSTRAINT fk_becario_beca_becario FOREIGN KEY (fk_becario) REFERENCES becario(id_becario),
-    CONSTRAINT fk_becario_beca_beca FOREIGN KEY (fk_beca) REFERENCES beca(id_beca)
+    id_becario INTEGER REFERENCES becario(id_becario),
+    id_beca INTEGER REFERENCES beca(id_beca),
+    fecha_inicio DATE,
+    fecha_fin DATE,
+    PRIMARY KEY (id_becario, id_beca)
+);
+
+-- Tabla de Montos de Beca
+CREATE TABLE montos_beca (
+    id_montos_beca SERIAL PRIMARY KEY,
+    monto NUMERIC(10, 2) NOT NULL,
+    id_beca INTEGER REFERENCES beca(id_beca)
+);
+
+-- Tabla de Becario_Institucion_Programa (relación entre becario, institución y programa)
+CREATE TABLE becario_institucion_programa (
+    id_becario INTEGER REFERENCES becario(id_becario),
+    id_institucion INTEGER REFERENCES institucion(id_institucion),
+    id_programa INTEGER REFERENCES programa(id_programa),
+    PRIMARY KEY (id_becario, id_institucion, id_programa)
 );
