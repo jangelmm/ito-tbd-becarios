@@ -8,7 +8,7 @@ def conectar_bd():
         conn = psycopg2.connect(
             host="localhost",
             port="5432",
-            dbname="conacyth-becarios",
+            dbname="prueba2",
             user="postgres",
             password="12345",
             connect_timeout=10,
@@ -21,7 +21,7 @@ def conectar_bd():
 
 def cargar_datos_excel():
     try:
-        df = pd.read_excel('excel-becarios.xlsx', nrows=906354)
+        df = pd.read_excel('excel-becarios.xlsx', nrows=5000) #906354
         df['INSTITUCIÓN'] = df['INSTITUCIÓN'].fillna('BECA NACIONAL')
         return df
     except Exception as e:
